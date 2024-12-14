@@ -1,60 +1,40 @@
 # Start from the code-server Debian base image
 FROM codercom/code-server:4.9.0
 
-USER coder
+# Switch to root user for administrative tasks
+USER root
 
-# Apply VS Code settings
-COPY deploy-container/settings.json .local/share/code-server/User/settings.json
-
-# Use bash shell
-ENV SHELL=/bin/bash
-
-# Install required packages
-RUN sudo apt-get update && \
-    sudo apt-get install -y \
-    unzip \
+# Install required packages with elevated privileges
+RUN apt-get update && \
+    apt-get install -y \
     sudo \
     ffmpeg \
     wget \
     curl \
+    unzip \
     mc \
     gnupg2 \
     ca-certificates \
-    lsb-release \
-    && sudo apt-get clean
+    lsb-release && \
+    apt-get clean
 
-# Install Node.js (v18) and npm, yarn
-RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && \
-    sudo apt-get install -y nodejs && \
-    sudo apt-get install -y yarn
+# Install Node.js (v18), npm, and yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
+    apt-get install -y nodejs && \
+    apt-get install -y yarn
 
 # Install rclone (support for remote filesystem)
-RUN curl https://rclone.org/install.sh | sudo bash
+RUN curl https://rclone.org/install.sh | bash
+
+# Fix permissions for code-server if needed
+RUN chown -R coder:coder /home/coder/.local
 
 # Copy rclone tasks to /tmp, to potentially be used
 COPY deploy-container/rclone-tasks.json /tmp/rclone-tasks.json
 
-# Fix permissions for code-server
-RUN sudo chown -R coder:coder /home/coder/.local
-
-# You can add custom software and dependencies for your environment below
-# -----------
-
-# Install a VS Code extension:
-# Note: we use a different marketplace than VS Code. See https://github.com/cdr/code-server/blob/main/docs/FAQ.md#differences-compared-to-vs-code
-# RUN code-server --install-extension esbenp.prettier-vscode
-
-# Install apt packages:
-# RUN sudo apt-get install -y ubuntu-make
-
-# Copy files: 
-# COPY deploy-container/myTool /home/coder/myTool
-
-# -----------
-
-# Port
+# Set environment variable for port
 ENV PORT=8080
 
-# Use our custom entrypoint script first
+# Use custom entrypoint script
 COPY deploy-container/entrypoint.sh /usr/bin/deploy-container-entrypoint.sh
 ENTRYPOINT ["/usr/bin/deploy-container-entrypoint.sh"]
