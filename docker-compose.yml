@@ -1,7 +1,7 @@
 version: '3'
 services:
   code-server:
-    image: <your_image>
+    image: <your_image_name>
     deploy:
       resources:
         limits:
