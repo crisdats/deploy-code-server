@@ -9,8 +9,26 @@ COPY deploy-container/settings.json .local/share/code-server/User/settings.json
 # Use bash shell
 ENV SHELL=/bin/bash
 
-# Install unzip + rclone (support for remote filesystem)
-RUN sudo apt-get update && sudo apt-get install unzip -y
+# Install required packages
+RUN sudo apt-get update && \
+    sudo apt-get install -y \
+    unzip \
+    sudo \
+    ffmpeg \
+    wget \
+    curl \
+    mc \
+    gnupg2 \
+    ca-certificates \
+    lsb-release \
+    && sudo apt-get clean
+
+# Install Node.js (v18) and npm, yarn
+RUN curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash - && \
+    sudo apt-get install -y nodejs && \
+    sudo apt-get install -y yarn
+
+# Install rclone (support for remote filesystem)
 RUN curl https://rclone.org/install.sh | sudo bash
 
 # Copy rclone tasks to /tmp, to potentially be used
