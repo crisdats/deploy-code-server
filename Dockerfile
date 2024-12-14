@@ -26,8 +26,8 @@ RUN curl -fsSL https://deb.nodesource.com/setup_18.x | bash - && \
 # Install rclone (support for remote filesystem)
 RUN curl https://rclone.org/install.sh | bash
 
-# Fix permissions for code-server if needed
-RUN chown -R coder:coder /home/coder/.local
+# Ensure the .local directory exists and set ownership
+RUN mkdir -p /home/coder/.local && chown -R coder:coder /home/coder/.local
 
 # Copy rclone tasks to /tmp, to potentially be used
 COPY deploy-container/rclone-tasks.json /tmp/rclone-tasks.json
