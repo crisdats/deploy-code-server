@@ -38,12 +38,6 @@ ENV PORT=8080
 # Set the memory limit for Node.js to 8GB
 ENV NODE_OPTIONS="--max-old-space-size=8192"
 
-# Add swap space to the container (4GB swap file)
-RUN dd if=/dev/zero of=/swapfile bs=1M count=4096 && \
-    chmod 600 /swapfile && \
-    mkswap /swapfile && \
-    swapon /swapfile
-
 # Use custom entrypoint script
 COPY deploy-container/entrypoint.sh /usr/bin/deploy-container-entrypoint.sh
 ENTRYPOINT ["/usr/bin/deploy-container-entrypoint.sh"]
